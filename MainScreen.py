@@ -43,9 +43,7 @@ class MainScreen(Screen):
             image_chosen_timestamp = self.current_images[self.IMAGE_TYPE_RIGHT]['timestamp']
             image_another_timestamp = self.current_images[self.IMAGE_TYPE_LEFT]['timestamp']
 
-        if button.type == self.IMAGE_TYPE_LEFT and image_chosen_timestamp < image_another_timestamp:
-            status = True
-        elif button.type == self.IMAGE_TYPE_RIGHT and image_chosen_timestamp < image_another_timestamp:
+        if image_chosen_timestamp < image_another_timestamp:
             status = True
         else:
             status = False
