@@ -1,0 +1,29 @@
+#:kivy 1.0.9
+
+<WelcomeScreen>
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'bg.jpg'
+    BoxLayout:
+        padding: 20
+        orientation: 'vertical'
+        Image:
+            source: 'nichosi/08.png'
+        Label:
+            markup: True
+            text: '[color=000000][b]Привет, Кися![/b]\nУгадывай какая фотография была [i]раньше[/i]\nДля этого просто нажимай на одну из фотографий[/color]'
+        Button:
+            markup: True
+            text: '[b]Поняла[/b]'
+            size_hint: (1, 0.3)
+            on_press: root.manager.current = 'main'
+            background_color: 2.5, 0.5, 0.9, 1
+
+<MainScreen>
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'bg.jpg'
