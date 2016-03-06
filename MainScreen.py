@@ -4,7 +4,7 @@
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.modalview import ModalView
 from kivy.uix.label import Label
-import random, datetime, math
+import random, datetime
 from kivy.uix.screenmanager import Screen
 from kivy.uix.image import Image
 from kivy.uix.button import ButtonBehavior

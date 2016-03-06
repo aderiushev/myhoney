@@ -90,6 +90,7 @@ class HoneyApp(App):
                     print('Removed illegal File: %s' % full_filename)
                     os.remove(full_filename)
                 except struct.error as e:
+                    print(e)
                     pass
 
         print('There are %i OK images' % len(self.images))
@@ -103,8 +104,6 @@ class HoneyApp(App):
         sm.add_widget(ms)
 
         return sm
-
-
 
 
 class WelcomeScreen(Screen):
