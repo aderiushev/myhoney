@@ -8,9 +8,8 @@ Config.set('kivy', 'window_icon', 'nichosi/02.png')
 Config.write()
 
 if __name__ == '__main__':
-    try:
-        app = HoneyApp()
-        app.prepare()
-        app.run()
-    except Exception as e:
-        raise e
+
+    app = HoneyApp()
+    app.prepare()
+    app.run()
+

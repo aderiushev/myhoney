@@ -4,11 +4,15 @@
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.modalview import ModalView
 from kivy.uix.label import Label
-import random, datetime
+import random, datetime, math
 from kivy.uix.screenmanager import Screen
 from kivy.uix.image import Image
 from kivy.uix.button import ButtonBehavior
 from kivy.uix.image import AsyncImage
+from kivy.graphics import Rectangle
+from kivy.graphics.transformation import Matrix
+from kivy.logger import Logger
+from kivy.uix.scatter import ScatterPlane
 
 
 class ImageButton(ButtonBehavior, Image):
@@ -56,10 +60,10 @@ class MainScreen(Screen):
             modal_data = random.choice(HoneyApp.error)
 
         layout = GridLayout(cols=1, rows=2, on_touch_down=modal.dismiss)
-        text = '{text}\n' \
-               'Эта фотография была сделана: [b]{image_date_chosen}[/b]\n' \
+        text = '[size=18][b]{text}[/b][/size]\n' \
+               '[size=11]Эта фотография была сделана: [b]{image_date_chosen}[/b]\n' \
                'Дата второй фотографии: [b]{image_date_another}[/b]\n' \
-               'Разница - [b]{date_diff}[/b]'.\
+               'Разница - [b]{date_diff}[/b][/size]'.\
             format(text=modal_data['text'],
                    image_date_chosen=datetime.datetime.fromtimestamp(image_chosen_timestamp).strftime('%d.%m.%Y %H:%M'),
                    image_date_another=datetime.datetime.fromtimestamp(image_another_timestamp).strftime('%d.%m.%Y %H:%M'),
@@ -87,11 +91,12 @@ class MainScreen(Screen):
 
         self.image1 = ImageButton(
             source=self.current_images[self.IMAGE_TYPE_LEFT]['filename'],
-            type=self.IMAGE_TYPE_LEFT
+            type=self.IMAGE_TYPE_LEFT,
+            allow_stretch=True
         )
         self.image2 = ImageButton(
             source=self.current_images[self.IMAGE_TYPE_RIGHT]['filename'],
-            type=self.IMAGE_TYPE_RIGHT
+            type=self.IMAGE_TYPE_RIGHT,
         )
         self.image1.bind(on_press=self.choose)
         self.image2.bind(on_press=self.choose)
@@ -99,6 +104,7 @@ class MainScreen(Screen):
         self.layout.add_widget(self.image1)
         self.layout.add_widget(self.image2)
         self.add_widget(self.layout)
+
 
     def get_random_images(self):
         from HoneyApp import HoneyApp
@@ -116,3 +122,22 @@ class MainScreen(Screen):
                 raise
 
         return result
+
+
+class RotateScatter(ScatterPlane):
+    def __init__(self, **kwargs):
+        super(RotateScatter, self).__init__(**kwargs)
+        self.matrix = Matrix()
+
+    def build(self, pos_x, pos_y, size_x, size_y):
+        print(size_x)
+        with self.canvas:
+            Rectangle(pos=[pos_x, pos_y], size=[size_x, size_y])
+
+    def rotate(self, angle):
+        self.matrix.identity()
+        self.matrix.rotate(angle, 0, 0, 1)
+        #self.matrix.scale(4, 4, 1)
+        self.apply_transform(trans=self.matrix, post_multiply=False)
+        Logger.info('ORIENTATION: rotateWidget angle    ' + str(angle))
+

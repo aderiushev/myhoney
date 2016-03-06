@@ -12,8 +12,15 @@
         Image:
             source: 'nichosi/08.png'
         Label:
+            padding: (0, 0)
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
             markup: True
-            text: '[color=000000][b]Привет, Кися![/b]\nУгадывай какая фотография была [i]раньше[/i]\nДля этого просто нажимай на одну из фотографий[/color]'
+            text: '[size=19][color=333333][b]Привет, Кися![/b]\nУгадывай какая фотография была [i]раньше[/i]\nДля этого просто нажимай на одну из фотографий[/color][/size]'
         Button:
             markup: True
             text: '[b]Поняла[/b]'
