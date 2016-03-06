@@ -9,10 +9,6 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.image import Image
 from kivy.uix.button import ButtonBehavior
 from kivy.uix.image import AsyncImage
-from kivy.graphics import Rectangle
-from kivy.graphics.transformation import Matrix
-from kivy.logger import Logger
-from kivy.uix.scatter import ScatterPlane
 
 
 class ImageButton(ButtonBehavior, Image):
@@ -122,22 +118,3 @@ class MainScreen(Screen):
                 raise
 
         return result
-
-
-class RotateScatter(ScatterPlane):
-    def __init__(self, **kwargs):
-        super(RotateScatter, self).__init__(**kwargs)
-        self.matrix = Matrix()
-
-    def build(self, pos_x, pos_y, size_x, size_y):
-        print(size_x)
-        with self.canvas:
-            Rectangle(pos=[pos_x, pos_y], size=[size_x, size_y])
-
-    def rotate(self, angle):
-        self.matrix.identity()
-        self.matrix.rotate(angle, 0, 0, 1)
-        #self.matrix.scale(4, 4, 1)
-        self.apply_transform(trans=self.matrix, post_multiply=False)
-        Logger.info('ORIENTATION: rotateWidget angle    ' + str(angle))
-
