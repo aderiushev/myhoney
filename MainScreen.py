@@ -9,6 +9,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.image import Image
 from kivy.uix.button import ButtonBehavior
 from kivy.uix.image import AsyncImage
+from Helper import get_resource
 
 
 class ImageButton(ButtonBehavior, Image):
@@ -72,7 +73,7 @@ class MainScreen(Screen):
 
     def on_enter(self):
         self.layout = GridLayout(cols=2, rows=1, padding=20)
-        self.layout.add_widget(AsyncImage(source='bg.jpg'))
+        self.layout.add_widget(AsyncImage(source=get_resource('bg.jpg')))
         self.renew_images()
 
     def renew_images(self, modal=None):
@@ -100,7 +101,6 @@ class MainScreen(Screen):
         self.layout.add_widget(self.image1)
         self.layout.add_widget(self.image2)
         self.add_widget(self.layout)
-
 
     def get_random_images(self):
         from HoneyApp import HoneyApp

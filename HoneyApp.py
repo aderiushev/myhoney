@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# coding=utf-8
+## -*- coding: utf-8 -*-
 
 from kivy.app import App
 import os, hashlib
@@ -10,25 +9,28 @@ from PIL import Image, ImageFile
 import datetime, time
 import struct
 import piexif
+from Helper import get_resource
 
 
 class HoneyApp(App):
-    IMAGES_DIRECTORY = 'images/'
+    title = 'Made in case you are missing me :)'
+    icon = get_resource('images/system/icon.png')
+    IMAGES_DIRECTORY = get_resource('images/')
     success = [
-        {'filename': 'nichosi/02.png', 'text': 'Молодец!'},
-        {'filename': 'nichosi/08.png', 'text': 'Память как у черепахи!'},
-        {'filename': 'nichosi/09.png', 'text': 'Да, это было именно так..'},
-        {'filename': 'nichosi/13.png', 'text': 'Следующая будет посложнее :)'},
-        {'filename': 'nichosi/14.png', 'text': 'Умничка :*'},
-        {'filename': 'nichosi/16.png', 'text': 'Правильно, кисуля :)'},
-        {'filename': 'nichosi/29.png', 'text': 'И как ты это вспомнила?..'}
+        {'filename': IMAGES_DIRECTORY + 'nichosi/02.png', 'text': 'Молодец!'},
+        {'filename': IMAGES_DIRECTORY + 'nichosi/08.png', 'text': 'Память как у черепахи!'},
+        {'filename': IMAGES_DIRECTORY + 'nichosi/09.png', 'text': 'Да, это было именно так..'},
+        {'filename': IMAGES_DIRECTORY + 'nichosi/13.png', 'text': 'Следующая будет посложнее :)'},
+        {'filename': IMAGES_DIRECTORY + 'nichosi/14.png', 'text': 'Умничка :*'},
+        {'filename': IMAGES_DIRECTORY + 'nichosi/16.png', 'text': 'Правильно, кисуля :)'},
+        {'filename': IMAGES_DIRECTORY + 'nichosi/29.png', 'text': 'И как ты это вспомнила?..'}
     ]
     error = [
-        {'filename': 'nichosi/07.png', 'text': 'Неа..'},
-        {'filename': 'nichosi/11.png', 'text': 'Милая, наоборот!'},
-        {'filename': 'nichosi/17.png', 'text': 'Ошибочка..'},
-        {'filename': 'nichosi/18.png', 'text': 'Солнышко, попробуй ещё разок'},
-        {'filename': 'nichosi/21.png', 'text': 'Ты уверена? А вот и нет!'}
+        {'filename': IMAGES_DIRECTORY + 'nichosi/07.png', 'text': 'Неа..'},
+        {'filename': IMAGES_DIRECTORY + 'nichosi/11.png', 'text': 'Милая, наоборот!'},
+        {'filename': IMAGES_DIRECTORY + 'nichosi/17.png', 'text': 'Ошибочка..'},
+        {'filename': IMAGES_DIRECTORY + 'nichosi/18.png', 'text': 'Солнышко, попробуй ещё разок'},
+        {'filename': IMAGES_DIRECTORY + 'nichosi/21.png', 'text': 'Ты уверена? А вот и нет!'}
     ]
     images = []
 
@@ -69,11 +71,14 @@ class HoneyApp(App):
             return image
 
         hash_images = []
-        for root, dirs, filenames in os.walk(self.IMAGES_DIRECTORY):
-            for filename in filenames:
+        for index, filename in enumerate(os.listdir(self.IMAGES_DIRECTORY)):
+            full_filename = self.IMAGES_DIRECTORY + filename
+            name, extension = os.path.splitext(full_filename)
+            if not os.path.isfile(full_filename):
+                continue
+
+            with Image.open(full_filename, 'r') as image:
                 try:
-                    full_filename = self.IMAGES_DIRECTORY + filename
-                    image = Image.open(full_filename, 'r')
                     rotate(image, full_filename)
                     exif_dict = get_exif(image)
                     date = exif_dict['Exif'][piexif.ExifIFD.DateTimeOriginal]
@@ -81,13 +86,21 @@ class HoneyApp(App):
                     hash_image = hashlib.md5(image.tobytes()).hexdigest()
                     if hash_image in hash_images:
                         print('Removed duplicated File: %s' % full_filename)
+                        image.close()
                         os.remove(full_filename)
                     else:
-                        self.images.append({'filename': full_filename, 'timestamp': timestamp})
+                        new_full_filename = '{images_dir}image-{index}{extension}'.format(
+                            images_dir=self.IMAGES_DIRECTORY,
+                            index=index,
+                            extension=extension
+                        )
+                        os.rename(full_filename, new_full_filename)
+                        self.images.append({'filename': new_full_filename, 'timestamp': timestamp})
                         hash_images.append(hash_image)
                 except (OSError, TypeError, KeyError, AttributeError) as e:
                     print(e)
                     print('Removed illegal File: %s' % full_filename)
+                    image.close()
                     os.remove(full_filename)
                 except struct.error as e:
                     print(e)
