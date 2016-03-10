@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-
+from __future__ import division
 from kivy.app import App
 import os, hashlib
 from kivy.uix.screenmanager import ScreenManager
@@ -11,6 +11,7 @@ import struct
 import piexif
 from Helper import get_resource
 
+ImageFile.MAXBLOCK = 1048576
 
 class HoneyApp(App):
     title = 'Made in case you are missing me :)'
@@ -44,13 +45,13 @@ class HoneyApp(App):
         def get_exif(image):
             return piexif.load(image.info["exif"])
 
-        def rotate(image, filename):
+        def optimize(image, filename):
             if "exif" in image.info:
                 exif_dict = get_exif(image)
+                exif_bytes = piexif.dump(exif_dict)
 
                 if piexif.ImageIFD.Orientation in exif_dict["0th"]:
                     orientation = exif_dict["0th"].pop(piexif.ImageIFD.Orientation)
-                    exif_bytes = piexif.dump(exif_dict)
 
                     if orientation == 2:
                         image = image.transpose(Image.FLIP_LEFT_RIGHT)
@@ -67,16 +68,13 @@ class HoneyApp(App):
                     elif orientation == 8:
                         image = image.rotate(90)
 
-                    image.save(filename, exif=exif_bytes)
+                width, height = image.size
+                if width > self.MAX_IMAGE_WIDTH:
+                    new_height = int(round(height / (width / self.MAX_IMAGE_WIDTH)))
+                    print('%i - %i' % (self.MAX_IMAGE_WIDTH, new_height))
+                    image = image.resize((self.MAX_IMAGE_WIDTH, new_height), Image.ANTIALIAS)
 
-            return image
-
-        def compress(image, filename):
-            width, height = image.size
-            if width > self.MAX_IMAGE_WIDTH:
-                new_height = int(round(height / (width / self.MAX_IMAGE_WIDTH)))
-                image.resize((self.MAX_IMAGE_WIDTH, new_height), Image.ANTIALIAS)
-            image.save(filename, optimize=True, quality=50)
+                image.save(filename, optimize=True, quality=70, exif=exif_bytes)
 
             return image
 
@@ -89,36 +87,31 @@ class HoneyApp(App):
 
             with Image.open(full_filename, 'r') as image:
                 try:
-                    image = compress(image, full_filename)
-                    image = rotate(image, full_filename)
+                    if "exif" not in image.info:
+                        raise DeleteImageException
+
+                    image = optimize(image, full_filename)
                     exif_dict = get_exif(image)
                     date = exif_dict['Exif'][piexif.ExifIFD.DateTimeOriginal]
                     timestamp = int(time.mktime(datetime.datetime.strptime(date, "%Y:%m:%d %H:%M:%S").timetuple()))
                     hash_image = hashlib.md5(image.tobytes()).hexdigest()
+
                     if hash_image in hash_images:
-                        print('Removed duplicated File: %s' % full_filename)
-                        image.close()
-                        os.remove(full_filename)
+                       raise DeleteImageException
                     else:
                         new_full_filename = '{images_dir}{hash_image}{extension}'.format(
                             images_dir=self.IMAGES_DIRECTORY,
                             hash_image=hash_image,
                             extension=extension
                         )
-                        try:
-                            os.rename(full_filename, new_full_filename)
-                        except OSError:
-                            pass
+
+                        os.rename(full_filename, new_full_filename)
                         self.images.append({'filename': new_full_filename, 'timestamp': timestamp})
                         hash_images.append(hash_image)
-                except (OSError, TypeError, KeyError, AttributeError) as e:
-                    print(e)
-                    print('Removed illegal File: %s' % full_filename)
+                except (DeleteImageException, struct.error, KeyError) as e:
+                    print('Removed File: %s (%s)' % (full_filename, str(e)))
                     image.close()
                     os.remove(full_filename)
-                except struct.error as e:
-                    print(e)
-                    pass
 
         print('There are %i OK images' % len(self.images))
         if len(self.images) < 2:
@@ -136,4 +129,8 @@ class HoneyApp(App):
 
 
 class WelcomeScreen(Screen):
+    pass
+
+
+class DeleteImageException(Exception):
     pass
