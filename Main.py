@@ -1,4 +1,5 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from HoneyApp import HoneyApp
 from kivy.config import Config
 from kivy.lang import Builder

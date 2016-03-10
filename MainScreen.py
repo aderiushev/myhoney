@@ -104,17 +104,12 @@ class MainScreen(Screen):
 
     def get_random_images(self):
         from HoneyApp import HoneyApp
-        result = {}
-        while len(result) < 2:
-            try:
-                image_random1 = random.choice(HoneyApp.images)
-                image_random2 = random.choice(HoneyApp.images)
 
-                if image_random1['filename'] == image_random2['filename']:
-                    continue
-                else:
-                    result = {self.IMAGE_TYPE_LEFT: image_random1, self.IMAGE_TYPE_RIGHT: image_random2}
-            except:
-                raise
+        while True:
+            image_random1 = random.choice(HoneyApp.images)
+            image_random2 = random.choice(HoneyApp.images)
 
-        return result
+            if image_random1['filename'] == image_random2['filename']:
+                continue
+            else:
+                return {self.IMAGE_TYPE_LEFT: image_random1, self.IMAGE_TYPE_RIGHT: image_random2}

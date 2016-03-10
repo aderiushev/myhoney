@@ -16,6 +16,7 @@ class HoneyApp(App):
     title = 'Made in case you are missing me :)'
     icon = get_resource('images/system/icon.png')
     IMAGES_DIRECTORY = get_resource('images/')
+    MAX_IMAGE_WIDTH = 300
     success = [
         {'filename': IMAGES_DIRECTORY + 'nichosi/02.png', 'text': 'Молодец!'},
         {'filename': IMAGES_DIRECTORY + 'nichosi/08.png', 'text': 'Память как у черепахи!'},
@@ -70,8 +71,17 @@ class HoneyApp(App):
 
             return image
 
+        def compress(image, filename):
+            width, height = image.size
+            if width > self.MAX_IMAGE_WIDTH:
+                new_height = int(round(height / (width / self.MAX_IMAGE_WIDTH)))
+                image.resize((self.MAX_IMAGE_WIDTH, new_height), Image.ANTIALIAS)
+            image.save(filename, optimize=True, quality=50)
+
+            return image
+
         hash_images = []
-        for index, filename in enumerate(os.listdir(self.IMAGES_DIRECTORY)):
+        for filename in os.listdir(self.IMAGES_DIRECTORY):
             full_filename = self.IMAGES_DIRECTORY + filename
             name, extension = os.path.splitext(full_filename)
             if not os.path.isfile(full_filename):
@@ -79,7 +89,8 @@ class HoneyApp(App):
 
             with Image.open(full_filename, 'r') as image:
                 try:
-                    rotate(image, full_filename)
+                    image = compress(image, full_filename)
+                    image = rotate(image, full_filename)
                     exif_dict = get_exif(image)
                     date = exif_dict['Exif'][piexif.ExifIFD.DateTimeOriginal]
                     timestamp = int(time.mktime(datetime.datetime.strptime(date, "%Y:%m:%d %H:%M:%S").timetuple()))
@@ -89,12 +100,15 @@ class HoneyApp(App):
                         image.close()
                         os.remove(full_filename)
                     else:
-                        new_full_filename = '{images_dir}image-{index}{extension}'.format(
+                        new_full_filename = '{images_dir}{hash_image}{extension}'.format(
                             images_dir=self.IMAGES_DIRECTORY,
-                            index=index,
+                            hash_image=hash_image,
                             extension=extension
                         )
-                        os.rename(full_filename, new_full_filename)
+                        try:
+                            os.rename(full_filename, new_full_filename)
+                        except OSError:
+                            pass
                         self.images.append({'filename': new_full_filename, 'timestamp': timestamp})
                         hash_images.append(hash_image)
                 except (OSError, TypeError, KeyError, AttributeError) as e:
@@ -107,6 +121,8 @@ class HoneyApp(App):
                     pass
 
         print('There are %i OK images' % len(self.images))
+        if len(self.images) < 2:
+            raise Exception('Add more images!')
 
     def build(self):
         sm = ScreenManager()
