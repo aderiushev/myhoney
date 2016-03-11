@@ -4,6 +4,7 @@ from HoneyApp import HoneyApp
 from kivy.config import Config
 from kivy.lang import Builder
 from Helper import get_resource
+import time
 
 Config.set('graphics', 'width', 640)
 Config.set('graphics', 'height', 480)
@@ -44,14 +45,20 @@ Builder.load_string("""
             on_press: root.manager.current = 'main'
             background_color: 2.5, 0.5, 0.9, 1
 
-<MainScreen>
+<MainScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: "{image_bg}"
 """.format(
         image_bg=get_resource('images/system/bg.jpg'),
         image_title=get_resource('images/nichosi/08.png'),
 ))
 
 if __name__ == '__main__':
-    app = HoneyApp()
+    microtime_start = int(round(time.time() * 1000))
+    app = HoneyApp(microtime_start=microtime_start)
     app.prepare()
     app.run()
 

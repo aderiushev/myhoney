@@ -8,8 +8,6 @@ import random, datetime
 from kivy.uix.screenmanager import Screen
 from kivy.uix.image import Image
 from kivy.uix.button import ButtonBehavior
-from kivy.uix.image import AsyncImage
-from Helper import get_resource
 
 
 class ImageButton(ButtonBehavior, Image):
@@ -72,8 +70,7 @@ class MainScreen(Screen):
         modal.open()
 
     def on_enter(self):
-        self.layout = GridLayout(cols=2, rows=1, padding=20)
-        self.layout.add_widget(AsyncImage(source=get_resource('bg.jpg')))
+        self.layout = GridLayout(cols=2, rows=1, spacing=10, padding=10)
         self.renew_images()
 
     def renew_images(self, modal=None):
