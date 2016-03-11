@@ -2,12 +2,14 @@
 # coding=utf-8
 
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.modalview import ModalView
 from kivy.uix.label import Label
 import random, datetime
 from kivy.uix.screenmanager import Screen
 from kivy.uix.image import Image
 from kivy.uix.button import ButtonBehavior
+from Helper import switch_sound
 
 
 class ImageButton(ButtonBehavior, Image):
@@ -17,6 +19,11 @@ class ImageButton(ButtonBehavior, Image):
         self.type = kwargs.get('type')
         super(ImageButton, self).__init__(**kwargs)
         pass
+
+
+class SoundButton(ButtonBehavior, Image):
+    def on_press(self):
+        switch_sound()
 
 
 class MainScreen(Screen):
@@ -70,11 +77,18 @@ class MainScreen(Screen):
         modal.open()
 
     def on_enter(self):
+        from HoneyApp import HoneyApp
         self.layout = GridLayout(cols=2, rows=1, spacing=10, padding=10)
+
+        parent_layout = FloatLayout(size=(0, 0))
+        sound_btn = SoundButton(source=HoneyApp.SOUND_SETTINGS['image'], pos=(5, 5), size_hint=(0.1, 0.1))
+        parent_layout.add_widget(sound_btn, 0)
+        parent_layout.add_widget(self.layout, 1)
+
+        self.add_widget(parent_layout)
         self.renew_images()
 
     def renew_images(self, modal=None):
-        self.clear_widgets()
         self.layout.clear_widgets()
         self.current_images = self.get_random_images()
 
@@ -85,8 +99,7 @@ class MainScreen(Screen):
 
         self.image1 = ImageButton(
             source=self.current_images[self.IMAGE_TYPE_LEFT]['filename'],
-            type=self.IMAGE_TYPE_LEFT,
-            allow_stretch=True
+            type=self.IMAGE_TYPE_LEFT
         )
         self.image2 = ImageButton(
             source=self.current_images[self.IMAGE_TYPE_RIGHT]['filename'],
@@ -97,7 +110,6 @@ class MainScreen(Screen):
 
         self.layout.add_widget(self.image1)
         self.layout.add_widget(self.image2)
-        self.add_widget(self.layout)
 
     def get_random_images(self):
         from HoneyApp import HoneyApp

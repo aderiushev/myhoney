@@ -1,5 +1,5 @@
 .idea
-images
+data
 build
 dist
 __pycache__

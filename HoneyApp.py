@@ -9,16 +9,24 @@ from PIL import Image, ImageFile
 import datetime, time
 import struct
 import piexif
-from Helper import get_resource
+from Helper import get_resource, switch_sound
+
 
 ImageFile.MAXBLOCK = 1048576
 
 
 class HoneyApp(App):
     title = 'Made in case you are missing me :)'
-    icon = get_resource('images/system/icon.png')
-    IMAGES_DIRECTORY = get_resource('images/')
+    icon = get_resource('data/images/system/icon.png')
+    IMAGES_DIRECTORY = get_resource('data/images/')
     MAX_IMAGE_WIDTH = 300
+    SOUND_SETTINGS = {
+        'source': get_resource('data/sound.mp3'),
+        'volume': 0.4,
+        'image': get_resource('data/images/system/sound.png')
+    }
+    sound = None
+
     success = [
         {'filename': IMAGES_DIRECTORY + 'nichosi/02.png', 'text': 'Молодец!'},
         {'filename': IMAGES_DIRECTORY + 'nichosi/08.png', 'text': 'Память как у черепахи!'},
@@ -135,6 +143,7 @@ class HoneyApp(App):
     def run(self):
         microtime_end = (int(round(time.time() * 1000)) - self.microtime_start) / 1000
         print('!!! LAUNCH TAKES {0:.2f} SECONDS !!!'.format(microtime_end))
+        switch_sound()
         super(HoneyApp, self).run()
 
 

@@ -9,7 +9,7 @@ import time
 Config.set('graphics', 'width', 640)
 Config.set('graphics', 'height', 480)
 Config.set('graphics', 'resizable', 0)
-Config.set('kivy', 'window_icon', get_resource('images/nichosi/02.png'))
+Config.set('kivy', 'window_icon', get_resource('data/images/nichosi/02.png'))
 
 Config.write()
 
@@ -51,9 +51,10 @@ Builder.load_string("""
             pos: self.pos
             size: self.size
             source: "{image_bg}"
+
 """.format(
-        image_bg=get_resource('images/system/bg.jpg'),
-        image_title=get_resource('images/nichosi/08.png'),
+        image_bg=get_resource('data/images/system/bg.jpg'),
+        image_title=get_resource('data/images/nichosi/08.png'),
 ))
 
 if __name__ == '__main__':

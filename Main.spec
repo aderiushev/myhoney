@@ -19,7 +19,7 @@ a = Analysis(['Main.py'],
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
-            Tree('images', prefix='images'),
+            Tree('data', prefix='data'),
           a.scripts,
           a.binaries,
           a.zipfiles,
@@ -31,4 +31,4 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           console=False,
-          icon='/home/aleksei/my/myhoney/images/system/favicon.ico')
+          icon='/home/aleksei/my/myhoney/data/images/system/favicon.ico')
